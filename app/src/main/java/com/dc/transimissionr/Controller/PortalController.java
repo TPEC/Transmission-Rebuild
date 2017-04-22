@@ -22,22 +22,29 @@ public class PortalController{
     private RectF rectDst;
 
     private TextureRect textureRect;
-    private int texId;
+    private int[] texId;
+    private int index=0;
 
     public PortalController(RectF rectDst){
         this.rectDst=rectDst;
     }
 
     public void initTexture(){
-        texId= TexFactory.getNewTexture(R.drawable.floor1,-1);
+        texId=new int[2];
+        texId[0]= TexFactory.getNewTexture(R.drawable.btn0,-1);
+        texId[1]=TexFactory.getNewTexture(R.drawable.btn1,-1);
         textureRect=new TextureRect(TexFactory.glSv,1f,1f);
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
     }
 
     public void draw() {
         MatrixState.pushMatrix();
         MatrixState.translate(rectDst.centerX()-640,360-rectDst.centerY(),0);
         MatrixState.scale(rectDst.width(),rectDst.height(),1f);
-        textureRect.drawSelf(texId);
+        textureRect.drawSelf(texId[index]);
         MatrixState.popMatrix();
     }
 

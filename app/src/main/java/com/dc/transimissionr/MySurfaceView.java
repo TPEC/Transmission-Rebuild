@@ -152,7 +152,7 @@ public class MySurfaceView extends GLSurfaceView
                 role.setAcc2(v);
             }
             role.calcVel();
-            wallsManager.calcCollision(role.getPos(),role.getVel());
+            role.setOnFloor(wallsManager.calcCollision(role));
             role.runLogic();
             MatrixState.setCamera(role.getPos(),role.getCam(),role.getCamh());
 
@@ -166,6 +166,7 @@ public class MySurfaceView extends GLSurfaceView
                             pgIndex=1;
                         else
                             pgIndex=0;
+                        portalController.setIndex(pgIndex);
                     }
                     pgValid=false;
                 }
@@ -174,26 +175,28 @@ public class MySurfaceView extends GLSurfaceView
         }
 
         public void setRoleVel(float[] vVel){
-            float[] vec3= VecFactory.crossProduct(role.getCam(),role.getCamh());
-            float[] vec2=new float[2];
-            if(vec3[0]!=0){
-                vec2[1]=1;
-                vec2[0]=-vec3[2]/vec3[0];
-            }else{
-                vec2[0]=1;
-                vec2[1]=-vec3[0]/vec3[2];
-            }
-            float k=vec2[0]*role.getCam()[0]+vec2[1]*role.getCam()[2];
-            if(k>0) {
-                VecFactory.multiply2(vec2, -1f);
-            }else if(k==0){
-                if(vec2[0]*role.getCamh()[0]+vec2[1]*role.getCamh()[2]<0)
+            if(role.isOnFloor()) {
+                float[] vec3 = VecFactory.crossProduct(role.getCam(), role.getCamh());
+                float[] vec2 = new float[2];
+                if (vec3[0] != 0) {
+                    vec2[1] = 1;
+                    vec2[0] = -vec3[2] / vec3[0];
+                } else {
+                    vec2[0] = 1;
+                    vec2[1] = -vec3[0] / vec3[2];
+                }
+                float k = vec2[0] * role.getCam()[0] + vec2[1] * role.getCam()[2];
+                if (k > 0) {
                     VecFactory.multiply2(vec2, -1f);
-            }
-            VecFactory.rotate2(vec2,new float[]{vVel[1],-vVel[0]});
-            VecFactory.unitize2(vec2);
+                } else if (k == 0) {
+                    if (vec2[0] * role.getCamh()[0] + vec2[1] * role.getCamh()[2] < 0)
+                        VecFactory.multiply2(vec2, -1f);
+                }
+                VecFactory.rotate2(vec2, new float[]{vVel[1], -vVel[0]});
+                VecFactory.unitize2(vec2);
 
-            role.setAcc2(vec2);
+                role.setAcc2(vec2);
+            }
         }
         public void setRoleCam(float[] vCam){
             VecFactory.rotate3y(role.getCam(),vCam[0]*CAM_SCALE);

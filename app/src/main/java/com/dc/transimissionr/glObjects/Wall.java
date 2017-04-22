@@ -60,10 +60,9 @@ public class Wall {
         return md2;
     }
 
-    public boolean checkCollision(float[] pos, float[] vel, boolean resize){//检测碰撞，输入位置向量、速度向量，返回是否碰撞，并修改速度向量，使得pos+vel刚好贴墙。墙的厚度为Constant.WALL_WIDTH
-        int ab;
-        if(!resize)
-            ab=0;
+    public int checkCollision(Role role, boolean resize){//检测碰撞，输入位置向量、速度向量，返回是否碰撞，并修改速度向量，使得pos+vel刚好贴墙。墙的厚度为Constant.WALL_WIDTH
+        float[] pos=role.getPos();
+        float[] vel=role.getVel();
         if(dotProduct3(nVec,vel)<0) {//正向相交
             float[] pv=VecFactory.getCrossPoint(nVec,md2,pos,vel);
             boolean f=VecFactory.dotProduct3(vel,VecFactory.getDel3(pv,pos))<0;
@@ -75,43 +74,23 @@ public class Wall {
                 float y = VecFactory.dotProduct3(pv, nUp);
                 if (Math.abs(x) <= width / 2 && Math.abs(y) <= height / 2) {   //墙面范围内
                     if(resize) {
-                        if(piw[0].valid){
-                            if(Math.abs(x-piw[0].pos2[0])<=PORTAL_SIZE/2 && Math.abs(y-piw[0].pos2[1])<=PORTAL_SIZE/2){//穿过传送门0
-                                if(piw[0].portal.getOtherSide().isValid()) {
-                                    float[] vel_p = new float[3];
-                                    vel_p[0] = VecFactory.dotProduct3(vel, nx);
-                                    vel_p[1] = VecFactory.dotProduct3(vel, nUp);
-                                    vel_p[2] = VecFactory.dotProduct3(vel, nVec);
-                                    Wall w = piw[0].portal.getOtherSide().getInWall();
-                                    nx = VecFactory.crossProduct(w.getnUp(), w.getnVec());
-                                    vel[0] = vel_p[0] * nx[0] + vel_p[1] * w.getnUp()[0] + vel_p[2] * w.getnVec()[0];
-                                    vel[1] = vel_p[0] * nx[1] + vel_p[1] * w.getnUp()[1] + vel_p[2] * w.getnVec()[1];
-                                    vel[2] = vel_p[0] * nx[2] + vel_p[1] * w.getnUp()[2] + vel_p[2] * w.getnVec()[2];
-                                    vel_p = piw[0].portal.getOtherSide().getPos();
-                                    pos[0] = vel_p[0];
-                                    pos[1] = vel_p[1];
-                                    pos[2] = vel_p[2];
-                                    return false;
-                                }
-                            }
-                        }
-                        if(piw[1].valid){
-                            if(Math.abs(x-piw[1].pos2[0])<=PORTAL_SIZE/2 && Math.abs(y-piw[1].pos2[1])<=PORTAL_SIZE/2){//穿过传送门1
-                                if(piw[1].portal.getOtherSide().isValid()) {
-                                    float[] vel_p = new float[3];
-                                    vel_p[0] = VecFactory.dotProduct3(vel, nx);
-                                    vel_p[1] = VecFactory.dotProduct3(vel, nUp);
-                                    vel_p[2] = VecFactory.dotProduct3(vel, nVec);
-                                    Wall w = piw[1].portal.getOtherSide().getInWall();
-                                    nx = VecFactory.crossProduct(w.getnUp(), w.getnVec());
-                                    vel[0] = vel_p[0] * nx[0] + vel_p[1] * w.getnUp()[0] + vel_p[2] * w.getnVec()[0];
-                                    vel[1] = vel_p[0] * nx[1] + vel_p[1] * w.getnUp()[1] + vel_p[2] * w.getnVec()[1];
-                                    vel[2] = vel_p[0] * nx[2] + vel_p[1] * w.getnUp()[2] + vel_p[2] * w.getnVec()[2];
-                                    vel_p = piw[1].portal.getOtherSide().getPos();
-                                    pos[0] = vel_p[0];
-                                    pos[1] = vel_p[1];
-                                    pos[2] = vel_p[2];
-                                    return false;
+                        for(int i=0;i<2;i++) {
+                            if (piw[i].valid) {
+                                if (Math.abs(x - piw[i].pos2[0]) <= PORTAL_SIZE / 2 && Math.abs(y - piw[i].pos2[1]) <= PORTAL_SIZE / 2) {//穿过传送门i
+                                    if (piw[i].portal.getOtherSide().isValid()) {
+                                        Wall w = piw[i].portal.getOtherSide().getInWall();
+                                        float[] vec=VecFactory.crossProduct(w.getnUp(),w.getnVec());
+                                        float[] vec2=VecFactory.getMultiply3(w.getnVec(),-1f);
+                                        VecFactory.multiply3(vec,-1f);
+                                        VecFactory.reCoordinate(nx,nUp,nVec,vel,vec,w.getnUp(),vec2);
+                                        VecFactory.reCoordinate(nx,nUp,nVec,role.getCam(),vec,w.getnUp(),vec2);
+                                        VecFactory.reCoordinate(nx,nUp,nVec,role.getCamh(),vec,w.getnUp(),vec2);
+                                        vec = VecFactory.getAdd3(piw[i].portal.getOtherSide().getPos(), VecFactory.getMultiply3(piw[i].portal.getOtherSide().getnVec(), WALL_WIDTH));
+                                        pos[0] = vec[0];
+                                        pos[1] = vec[1];
+                                        pos[2] = vec[2];
+                                        return 2;
+                                    }
                                 }
                             }
                         }
@@ -121,6 +100,24 @@ public class Wall {
                         vel[1] = vel_p[1];
                         vel[2] = vel_p[2];
                     }
+                    return 1;
+                }
+            }
+        }
+        return 0;
+    }
+
+    public boolean checkCollision(float[] pos, float[] vel){//检测碰撞，输入位置向量、速度向量，返回是否碰撞，并修改速度向量，使得pos+vel刚好贴墙。墙的厚度为Constant.WALL_WIDTH
+        if(dotProduct3(nVec,vel)<0) {//正向相交
+            float[] pv=VecFactory.getCrossPoint(nVec,md2,pos,vel);
+            boolean f=VecFactory.dotProduct3(vel,VecFactory.getDel3(pv,pos))<0;
+            f=f && VecFactory.dotProduct3(vel,VecFactory.getDel3(VecFactory.getCrossPoint(nVec,md,pos,vel),pos))>=0;
+            if(VecFactory.getLength3(VecFactory.getDel3(pv,pos))<=VecFactory.getLength3(vel)||f) { //墙面厚度内
+                pv=VecFactory.getDel3(pv,md2);
+                float[] nx = VecFactory.crossProduct(nUp, nVec);
+                float x = VecFactory.dotProduct3(pv, nx);
+                float y = VecFactory.dotProduct3(pv, nUp);
+                if (Math.abs(x) <= width / 2 && Math.abs(y) <= height / 2) {   //墙面范围内
                     return true;
                 }
             }

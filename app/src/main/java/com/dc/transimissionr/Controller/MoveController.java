@@ -41,7 +41,7 @@ public class MoveController {
     }
 
     public void initTexture(){
-        texId=TexFactory.getNewTexture(R.drawable.floor1,-1);
+        texId=TexFactory.getNewTexture(R.drawable.mc,-1);
         textureRect=new TextureRect(TexFactory.glSv,1f,1f);
     }
 

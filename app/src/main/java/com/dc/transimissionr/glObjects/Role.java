@@ -15,6 +15,7 @@ public class Role{
     private float[] vel;
     private float[] acc;
     private float[] cam,camh;
+    private boolean onFloor;
 
     public Role(){
         pos=new float[3];
@@ -36,6 +37,14 @@ public class Role{
     public void setAcc2(float[] acc){
         this.acc[0]=acc[0]* ACC_SCALE;
         this.acc[2]=acc[1]* ACC_SCALE;
+    }
+
+    public boolean isOnFloor() {
+        return onFloor;
+    }
+
+    public void setOnFloor(boolean onFloor) {
+        this.onFloor = onFloor;
     }
 
     public void setPos(float[] pos) {

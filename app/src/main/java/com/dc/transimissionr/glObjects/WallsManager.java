@@ -55,17 +55,25 @@ public class WallsManager{
 //        walls.add(wall);
     }
 
-    public void calcCollision(float[] pos, float[] vel){
-        for(Wall w:walls){
-            w.checkCollision(pos,vel,true);
+    public boolean calcCollision(Role role){ //返回onFloor
+        boolean f=false;
+        for(int i=0;i<walls.size();i++){
+            int j=walls.get(i).checkCollision(role,true);
+            if(j==1){
+                if(!f && VecFactory.dotProduct3(walls.get(i).getnVec(),new float[]{0,1,0})>=.7f)
+                    f=true;
+            }else if(j==2){
+                i=-1;
+            }
         }
+        return f;
     }
 
     public int calcPortal(float[] pos, float[] vel, Portal portal){
         Wall nw=null;
         float nl=10000f;
         for(Wall w:walls){
-            if(w.checkCollision(pos,vel,false)){
+            if(w.checkCollision(pos,vel)){
                 float[] cp=VecFactory.getCrossPoint(w.getnVec(),w.getMd2(),pos,vel);
                 float cd=VecFactory.getDistance3(pos,cp);
                 if(cd<nl && VecFactory.dotProduct3(vel,VecFactory.getDel3(cp,pos))>=0){

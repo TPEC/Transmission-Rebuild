@@ -13,7 +13,7 @@ public class Constant
 
     public static float EYE_HEIGHT=0.25f;
 
-    public static float CAM_DISTANCE=3f;
+    public static float CAM_DISTANCE=5f;
 
     public static float MAX_HORIZON_VEL=0.05f;
     public static float ACC_SCALE=0.01f;

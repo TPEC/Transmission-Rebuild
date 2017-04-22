@@ -25,9 +25,16 @@ public class Portal {
 
     private boolean valid=false;
 
+    public float[] getnVec() {
+        return nVec;
+    }
+
     public Portal(int index){
         this.index=index;
-        texId= TexFactory.getNewTexture(R.drawable.floor1,-1);
+        if(index==0)
+            texId= TexFactory.getNewTexture(R.drawable.portal0,-1);
+        else
+            texId= TexFactory.getNewTexture(R.drawable.portal1,-1);
         textureRect=new TextureRect(TexFactory.glSv,1f,1f);
     }
 

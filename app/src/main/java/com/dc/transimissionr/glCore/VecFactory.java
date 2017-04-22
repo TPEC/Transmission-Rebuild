@@ -133,4 +133,18 @@ public class VecFactory {
         return f;
     }
 
+    public static void reCoordinate(float[] x,float[] y,float[] z, float[] vec, float[] nx,float[] ny, float[] nz){
+        float[] vel_p = new float[3];
+        vel_p[0] = VecFactory.dotProduct3(vec, x);
+        vel_p[1] = VecFactory.dotProduct3(vec, y);
+        vel_p[2] = VecFactory.dotProduct3(vec, z);
+        vec[0] = vel_p[0] * nx[0] + vel_p[1] * ny[0] + vel_p[2] * nz[0];
+        vec[1] = vel_p[0] * nx[1] + vel_p[1] * ny[1] + vel_p[2] * nz[1];
+        vec[2] = vel_p[0] * nx[2] + vel_p[1] * ny[2] + vel_p[2] * nz[2];
+    }
+
+    public static void printVec3(float[] vec){
+        System.out.printf("x=%.3f\ty=%.3f\tz=%.3f\n" ,vec[0],vec[1],vec[2]);
+    }
+
 }
