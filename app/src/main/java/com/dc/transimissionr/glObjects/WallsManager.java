@@ -2,6 +2,7 @@ package com.dc.transimissionr.glObjects;
 
 import com.dc.transimissionr.R;
 import com.dc.transimissionr.glCore.TexFactory;
+import com.dc.transimissionr.glCore.VecFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,33 +26,27 @@ public class WallsManager{
     public void addWall(float width,float height){
         Wall wall=new Wall(width,height);
         wall.setTexId(textureID[0]);
-        wall.setMd(new float[]{0,0,-3});
-        wall.setNVec(new float[]{0,0,1},new float[]{0,1,0});
+        wall.setWallPos(new float[]{0,0,-3},new float[]{0,0,1},new float[]{0,1,0});
         walls.add(wall);
         wall=new Wall(width,height);
         wall.setTexId(textureID[0]);
-        wall.setMd(new float[]{3,0,0});
-        wall.setNVec(new float[]{-1,0,0},new float[]{0,1,0});
+        wall.setWallPos(new float[]{3,0,0},new float[]{-1,0,0},new float[]{0,1,0});
         walls.add(wall);
         wall=new Wall(width,height);
         wall.setTexId(textureID[0]);
-        wall.setMd(new float[]{0,0,3});
-        wall.setNVec(new float[]{0,0,-1},new float[]{0,1,0});
+        wall.setWallPos(new float[]{0,0,3},new float[]{0,0,-1},new float[]{0,1,0});
         walls.add(wall);
         wall=new Wall(width,height);
         wall.setTexId(textureID[0]);
-        wall.setMd(new float[]{-3,0,0});
-        wall.setNVec(new float[]{1,0,0},new float[]{0,1,0});
+        wall.setWallPos(new float[]{-3,0,0},new float[]{1,0,0},new float[]{0,1,0});
         walls.add(wall);
         wall=new Wall(6,6);
         wall.setTexId(textureID[2]);
-        wall.setMd(new float[]{0,-3,0});
-        wall.setNVec(new float[]{0,1,0},new float[]{0,0,-1});
+        wall.setWallPos(new float[]{0,-3,0},new float[]{0,1,0},new float[]{0,0,-1});
         walls.add(wall);
         wall=new Wall(6,6);
         wall.setTexId(textureID[1]);
-        wall.setMd(new float[]{0,3,0});
-        wall.setNVec(new float[]{0,-1,0},new float[]{0,0,1});
+        wall.setWallPos(new float[]{0,3,0},new float[]{0,-1,0},new float[]{0,0,1});
         walls.add(wall);
 //        Wall wall=new Wall(100,100);
 //        wall.setMd(new float[]{0,0,0});
@@ -62,8 +57,30 @@ public class WallsManager{
 
     public void calcCollision(float[] pos, float[] vel){
         for(Wall w:walls){
-            w.checkCollision(pos,vel);
+            w.checkCollision(pos,vel,true);
         }
+    }
+
+    public int calcPortal(float[] pos, float[] vel, Portal portal){
+        Wall nw=null;
+        float nl=10000f;
+        for(Wall w:walls){
+            if(w.checkCollision(pos,vel,false)){
+                float[] cp=VecFactory.getCrossPoint(w.getnVec(),w.getMd2(),pos,vel);
+                float cd=VecFactory.getDistance3(pos,cp);
+                if(cd<nl && VecFactory.dotProduct3(vel,VecFactory.getDel3(cp,pos))>=0){
+                    nl=cd;
+                    nw=w;
+                }
+            }
+        }
+        if(nw!=null){
+            if(nw.setPortal(VecFactory.getCrossPoint(nw.getnVec(),nw.getMd2(),pos,vel),portal))
+                return 1;
+            else
+                return 2;
+        }
+        return 0;
     }
 
     public void draw() {

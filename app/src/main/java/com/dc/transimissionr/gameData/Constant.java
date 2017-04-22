@@ -3,11 +3,15 @@ package com.dc.transimissionr.gameData;
 public class Constant 
 {
 	public static final float UNIT_SIZE=1f;
+
+    public static final float PORTAL_SIZE=1.2f;
+    public static final float PORTALGUN_VEL=0.2f;
+
     public static float ratio;
 
     public static float WALL_WIDTH=0.5f;
 
-    public static float EYE_HEIGHT=0.5f;
+    public static float EYE_HEIGHT=0.25f;
 
     public static float CAM_DISTANCE=3f;
 

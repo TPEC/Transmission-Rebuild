@@ -13,6 +13,7 @@ import com.dc.transimissionr.glCore.MatrixState;
 import com.dc.transimissionr.glCore.TexFactory;
 import com.dc.transimissionr.glCore.VecFactory;
 import com.dc.transimissionr.glObjects.CrossLine;
+import com.dc.transimissionr.glObjects.Portal;
 import com.dc.transimissionr.glObjects.Role;
 import com.dc.transimissionr.glObjects.WallsManager;
 
@@ -20,13 +21,15 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import static com.dc.transimissionr.gameData.Constant.CAM_SCALE;
+import static com.dc.transimissionr.gameData.Constant.EYE_HEIGHT;
+import static com.dc.transimissionr.gameData.Constant.PORTALGUN_VEL;
 import static com.dc.transimissionr.gameData.Constant.ratio;
 import static com.dc.transimissionr.gameData.Constant.ratio_height;
 import static com.dc.transimissionr.gameData.Constant.ratio_width;
 
 public class MySurfaceView extends GLSurfaceView
 {
-    private static final float ProjectFrustum_RATIO=0.05f;
+    private static final float ProjectFrustum_RATIO=0.06f;
     private SceneRenderer mRenderer;
 
     private MoveController moveController;
@@ -59,7 +62,7 @@ public class MySurfaceView extends GLSurfaceView
             mRenderer.setRoleVel(moveController.getMoveVector());
         }
         if(portalController.getClicked()){
-
+            mRenderer.addPortal();
         }
         if(viewController.getClickDown()){
             mRenderer.setRoleCam(viewController.getMoveVector());
@@ -72,6 +75,13 @@ public class MySurfaceView extends GLSurfaceView
         private WallsManager wallsManager;
         private Role role;
         private CrossLine crossLine;
+
+        private Portal[] portals;
+
+        private boolean pgValid=false;
+        private float[] pgPos;
+        private float[] pgVel;
+        private int pgIndex=0;
     	
         public void onDrawFrame(GL10 gl)
         {
@@ -104,11 +114,20 @@ public class MySurfaceView extends GLSurfaceView
             crossLine.initTexture();
             role=new Role();
             role.setGravity(0.1f);
+            portals=new Portal[2];
+            portals[0]=new Portal(0);
+            portals[1]=new Portal(1);
+            portals[0].setOtherSide(portals[1]);
+            portals[1].setOtherSide(portals[0]);
+            pgPos=new float[3];
+            pgVel=new float[3];
         }
 
         public void drawGameScene(){
             MatrixState.setProjectFrustum(-ratio*ProjectFrustum_RATIO, ratio*ProjectFrustum_RATIO, -ProjectFrustum_RATIO, ProjectFrustum_RATIO, 0.1f, 100);
             wallsManager.draw();
+            portals[0].draw();
+            portals[1].draw();
         }
 
         public void drawHUD(){
@@ -125,7 +144,6 @@ public class MySurfaceView extends GLSurfaceView
         }
 
         public void gameLogic(){
-
             if(moveController.getClickDown())
                 setRoleVel(moveController.getMoveVector());
             else {
@@ -137,6 +155,22 @@ public class MySurfaceView extends GLSurfaceView
             wallsManager.calcCollision(role.getPos(),role.getVel());
             role.runLogic();
             MatrixState.setCamera(role.getPos(),role.getCam(),role.getCamh());
+
+            if(pgValid) {
+                int i=wallsManager.calcPortal(pgPos, pgVel, portals[pgIndex]);
+                if(i==0)
+                    pgPos=VecFactory.getAdd3(pgPos,pgVel);
+                else{
+                    if(i==1){
+                        if(pgIndex==0)
+                            pgIndex=1;
+                        else
+                            pgIndex=0;
+                    }
+                    pgValid=false;
+                }
+
+            }
         }
 
         public void setRoleVel(float[] vVel){
@@ -188,8 +222,17 @@ public class MySurfaceView extends GLSurfaceView
                 }
             }
         }
-        public void addPortal(int index){
-
+        public void addPortal(){
+            if(!pgValid){
+                pgValid=true;
+                pgPos[0]=role.getPos()[0];
+                pgPos[1]=role.getPos()[1]+EYE_HEIGHT;
+                pgPos[2]=role.getPos()[2];
+                pgVel[0]=role.getCam()[0];
+                pgVel[1]=role.getCam()[1];
+                pgVel[2]=role.getCam()[2];
+                VecFactory.multiply3(pgVel,PORTALGUN_VEL);
+            }
         }
     }
 }

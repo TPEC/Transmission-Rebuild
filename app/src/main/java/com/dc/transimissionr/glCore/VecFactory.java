@@ -5,7 +5,7 @@ package com.dc.transimissionr.glCore;
  */
 
 public class VecFactory {
-    public static float[] crossProduct(float[] va,float[] vb){
+    public static float[] crossProduct(float[] va,float[] vb){//叉乘
         float[] vc=new float[3];
         vc[0]=va[1]*vb[2]-va[2]*vb[1];
         vc[1]=va[2]*vb[0]-va[0]*vb[2];
@@ -13,11 +13,11 @@ public class VecFactory {
         return vc;
     }
 
-    public static float dotProduct3(float[] va,float[] vb){
+    public static float dotProduct3(float[] va,float[] vb){//点乘
         return va[0]*vb[0]+va[1]*vb[1]+va[2]*vb[2];
     }
 
-    public static void unitize3(float[] vec){
+    public static void unitize3(float[] vec){//单位化
         float s=getLength3(vec);
         if(s>0){
             s=1/s;
@@ -40,7 +40,11 @@ public class VecFactory {
         return (float) Math.sqrt(vec[0]*vec[0]+vec[1]*vec[1]+vec[2]*vec[2]);
     }
 
-    public static void multiply3(float[] vec, float k){
+    public static float getDistance3(float[] va, float[] vb){
+        return getLength3(getDel3(va,vb));
+    }
+
+    public static void multiply3(float[] vec, float k){//向量数乘
         vec[0]*=k;
         vec[1]*=k;
         vec[2]*=k;
@@ -86,34 +90,13 @@ public class VecFactory {
         vec[2]=v2;
     }
 
-    public static float getIncludedAngle2(float[] vBase,float[] vec){
+    public static float getIncludedAngle2(float[] vBase,float[] vec){//获取vBase和vec夹角（角度制）
         if(vec[0]==0 && vec[1]==0)
             return 0;
         float a= (float) Math.acos((vBase[0]*vec[0]+vBase[1]*vec[1])/getLength2(vBase)/getLength2(vec));
         if(vBase[0]*vec[1]-vBase[1]*vec[0]>0)
             a=-a;
         return (float) (a*180/Math.PI);
-    }
-
-    public static float[] getProjection(float[] n, float[] m, float[] p) {//得出p在平面的投影
-        float[] f = new float[3];
-        if(n[0]==0){
-            f[0]=p[0];
-            f[1]=n[1]*n[1]*m[1]+n[2]*n[2]*p[1]-n[1]*n[2]*(p[2]-m[2]);
-            f[2]=n[2]*n[2]*m[2]+n[1]*n[1]*p[2]-n[2]*n[1]*(p[1]-m[1]);
-        }else{
-            float a0 = n[1] * p[0] - n[0] * p[1];
-            float a1 = n[2] * p[0] - n[0] * p[2];
-            float a2 = n[0] * m[0] + n[1] * m[1] + n[2] * m[2];
-            float d1 = a2 * n[0] * n[0] + a0 * n[0] * n[1] + a1 * n[0] * n[2];
-            float d2 = n[1] * a1 * n[2] - a0 * n[0] * n[0] + n[1] * n[0] * a2 - a0 * n[2] * n[2];
-            float d3 = n[2] * n[1] * a0 - n[0] * n[0] * a1 - n[1] * n[1] * a1 + n[0] * n[2] * a2;
-            float d = n[0] * n[0] * n[0] + n[0] * n[1] * n[1] + n[0] * n[2] * n[2];
-            f[0] = d1 / d;
-            f[1] = d2 / d;
-            f[2] = d3 / d;
-        }
-        return f;
     }
 
     public static float[] getAdd3(float[] va,float[] vb){
@@ -132,27 +115,21 @@ public class VecFactory {
         return vec;
     }
 
+    public static float[] getProjection(float[] n, float[] m, float[] p) {//得出p在平面的投影
+        float[] f = new float[3];
+        float t=(n[0]*m[0]+n[1]*m[1]+n[2]*m[2]-n[0]*p[0]-n[1]*p[1]-n[2]*p[2])/(n[0]*n[0]+n[1]*n[1]+n[2]*n[2]);
+        f[0]=p[0]+n[0]*t;
+        f[1]=p[1]+n[1]*t;
+        f[2]=p[2]+n[2]*t;
+        return f;
+    }
+
     public static float[] getCrossPoint(float[] n, float[] m, float[] p, float[] v) {//得出射线与平面交点
         float[] f = new float[3];
-        if(n[0]==0){
-            f[1]=(n[2]*v[2]*p[1]+n[1]*v[1]*m[1]-n[2]*v[1]*(p[2]-m[2]))/(n[2]*v[2]+n[1]*v[1]);
-            f[2]=(n[1]*v[1]*p[2]+n[2]*v[2]*m[2]-n[1]*v[2]*(p[1]-m[1]))/(n[1]*v[1]+n[2]*v[2]);
-            if(v[1]==0)
-                f[0]=v[0]*(f[2]-p[2])/v[2]+p[0];
-            else
-                f[0]=v[0]*(f[1]-p[1])/v[1]+p[0];
-        }else{
-            float a0 = v[1] * p[0] - v[0] * p[1];
-            float a1 = v[2] * p[0] - v[0] * p[2];
-            float a2 = n[0] * m[0] + n[1] * m[1] + n[2] * m[2];
-            float d1 = a2 * v[0] * v[0] + a0 * v[0] * n[1] + a1 * v[0] * n[2];
-            float d2 = v[1] * a1 * v[2] - a0 * v[0] * n[0] + v[1] * v[0] * a2 - a0 * v[2] * n[2];
-            float d3 = v[2] * n[1] * a0 - n[0] * v[0] * a1 - v[1] * n[1] * a1 + v[0] * v[2] * a2;
-            float d = n[0] * v[0] * v[0] + v[0] * v[1] * n[1] + v[0] * v[2] * n[2];
-            f[0] = d1 / d;
-            f[1] = d2 / d;
-            f[2] = d3 / d;
-        }
+        float t=(n[0]*m[0]+n[1]*m[1]+n[2]*m[2]-n[0]*p[0]-n[1]*p[1]-n[2]*p[2])/(n[0]*v[0]+n[1]*v[1]+n[2]*v[2]);
+        f[0]=p[0]+v[0]*t;
+        f[1]=p[1]+v[1]*t;
+        f[2]=p[2]+v[2]*t;
         return f;
     }
 
