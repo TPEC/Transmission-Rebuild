@@ -19,6 +19,8 @@ public class Wall {
     private float height;
     private int texId;
 
+    private boolean pStart;
+
     private float[] nVec;
     private float[] nUp;
     private float[] md;
