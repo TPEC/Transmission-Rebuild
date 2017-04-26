@@ -50,6 +50,11 @@ public class Wall {
         this.texId = texId;
     }
 
+    public void disablePortal() {
+        piw[0].valid=false;
+        piw[1].valid=false;
+    }
+
     public float[] getnVec() {
         return nVec;
     }

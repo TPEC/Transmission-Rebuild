@@ -15,6 +15,8 @@ public class WallsManager{
     private List<Wall> walls;
     private int[] textureID;
 
+    private int startFloorId;
+
     public WallsManager(){
         walls=new ArrayList<>();
     }
@@ -23,36 +25,40 @@ public class WallsManager{
         walls.clear();
     }
 
+    public void initRolePos(Role role){
+        role.setPos(walls.get(startFloorId).getMd2());
+    }
+
     public void addWall(float width,float height){
-        Wall wall=new Wall(width,height);
+        Wall wall=new Wall(6,2);
         wall.setTexId(textureID[0]);
         wall.setWallPos(new float[]{0,0,-3},new float[]{0,0,1},new float[]{0,1,0});
         walls.add(wall);
-        wall=new Wall(width,height);
+        wall=new Wall(6,2);
         wall.setTexId(textureID[0]);
         wall.setWallPos(new float[]{3,0,0},new float[]{-1,0,0},new float[]{0,1,0});
         walls.add(wall);
-        wall=new Wall(width,height);
+
+        wall=new Wall(6,2);
         wall.setTexId(textureID[0]);
         wall.setWallPos(new float[]{0,0,3},new float[]{0,0,-1},new float[]{0,1,0});
         walls.add(wall);
-        wall=new Wall(width,height);
+
+        wall=new Wall(6,2);
         wall.setTexId(textureID[0]);
         wall.setWallPos(new float[]{-3,0,0},new float[]{1,0,0},new float[]{0,1,0});
         walls.add(wall);
+
         wall=new Wall(6,6);
         wall.setTexId(textureID[2]);
         wall.setWallPos(new float[]{0,-3,0},new float[]{0,1,0},new float[]{0,0,-1});
+        startFloorId=walls.size();
         walls.add(wall);
+
         wall=new Wall(6,6);
         wall.setTexId(textureID[1]);
         wall.setWallPos(new float[]{0,3,0},new float[]{0,-1,0},new float[]{0,0,1});
         walls.add(wall);
-//        Wall wall=new Wall(100,100);
-//        wall.setMd(new float[]{0,0,0});
-//        wall.setNVec(new float[]{0,0,1},new float[]{0,1,0});
-//        wall.setTexId(textureID[2]);
-//        walls.add(wall);
     }
 
     public boolean calcCollision(Role role){ //返回onFloor

@@ -36,6 +36,8 @@ public class MySurfaceView extends GLSurfaceView
     private PortalController portalController;
     private ViewController viewController;
 
+    boolean pause=false;
+
 	public MySurfaceView(Context context) {
         super(context);
         TexFactory.glSv=this;
@@ -55,19 +57,22 @@ public class MySurfaceView extends GLSurfaceView
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        moveController.onTouchEvent(event);
-        portalController.onTouchEvent(event);
-        viewController.onTouchEvent(event);
-        if(moveController.getClickDown()) {
-            mRenderer.setRoleVel(moveController.getMoveVector());
-        }
-        if(portalController.getClicked()){
-            mRenderer.addPortal();
-        }
-        if(viewController.getClickDown()){
-            mRenderer.setRoleCam(viewController.getMoveVector());
-        }
-        return true;
+        if(!pause) {
+            moveController.onTouchEvent(event);
+            portalController.onTouchEvent(event);
+            viewController.onTouchEvent(event);
+            if (moveController.getClickDown()) {
+                mRenderer.setRoleVel(moveController.getMoveVector());
+            }
+            if (portalController.getClicked()) {
+                mRenderer.addPortal();
+            }
+            if (viewController.getClickDown()) {
+                mRenderer.setRoleCam(viewController.getMoveVector());
+            }
+            return true;
+        }else
+            return false;
     }
 
 	private class SceneRenderer implements GLSurfaceView.Renderer
@@ -83,13 +88,14 @@ public class MySurfaceView extends GLSurfaceView
         private float[] pgVel;
         private int pgIndex=0;
     	
-        public void onDrawFrame(GL10 gl)
-        {
-            GLES20.glClear( GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
+        public void onDrawFrame(GL10 gl) {
+            if(!pause) {
+                GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
 
-            gameLogic();
-            drawGameScene();
-            drawHUD();
+                gameLogic();
+                drawGameScene();
+                drawHUD();
+            }
         }  
 
         public void onSurfaceChanged(GL10 gl, int width, int height) {
@@ -113,7 +119,7 @@ public class MySurfaceView extends GLSurfaceView
             crossLine=new CrossLine(50f,5f);
             crossLine.initTexture();
             role=new Role();
-            role.setGravity(0.1f);
+            role.setGravity(0.01f);
             portals=new Portal[2];
             portals[0]=new Portal(0);
             portals[1]=new Portal(1);
@@ -154,6 +160,17 @@ public class MySurfaceView extends GLSurfaceView
             role.calcVel();
             role.setOnFloor(wallsManager.calcCollision(role));
             role.runLogic();
+            if(!role.isAlive()){
+                if(portals[0].getInWall()!=null)
+                    portals[0].getInWall().disablePortal();
+                if(portals[1].getInWall()!=null)
+                    portals[1].getInWall().disablePortal();
+                portals[0].setValid(false);
+                portals[1].setValid(false);
+                wallsManager.initRolePos(role);
+                role.setAlive(true);
+            }
+
             MatrixState.setCamera(role.getPos(),role.getCam(),role.getCamh());
 
             if(pgValid) {
@@ -170,7 +187,6 @@ public class MySurfaceView extends GLSurfaceView
                     }
                     pgValid=false;
                 }
-
             }
         }
 

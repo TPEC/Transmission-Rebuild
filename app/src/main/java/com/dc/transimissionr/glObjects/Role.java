@@ -17,6 +17,8 @@ public class Role{
     private float[] cam,camh;
     private boolean onFloor;
 
+    boolean alive=true;
+
     public Role(){
         pos=new float[3];
         vel=new float[3];
@@ -79,6 +81,14 @@ public class Role{
         return camh;
     }
 
+    public boolean isAlive() {
+        return alive;
+    }
+
+    public void setAlive(boolean alive) {
+        this.alive = alive;
+    }
+
     public void calcVel(){
         vel[0]+=acc[0];
         vel[1]+=acc[1];
@@ -98,5 +108,9 @@ public class Role{
         pos[0]+=vel[0];
         pos[1]+=vel[1];
         pos[2]+=vel[2];
+
+        if(pos[1]<-30f){
+            alive=false;
+        }
     }
 }
