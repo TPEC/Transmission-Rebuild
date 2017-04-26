@@ -147,4 +147,12 @@ public class VecFactory {
         System.out.printf("x=%.3f\ty=%.3f\tz=%.3f\n" ,vec[0],vec[1],vec[2]);
     }
 
+    public static float[] getCopy3(float[] vec){
+        float[]f= new float[3];
+        f[0]=vec[0];
+        f[1]=vec[1];
+        f[2]=vec[2];
+        return f;
+    }
+
 }

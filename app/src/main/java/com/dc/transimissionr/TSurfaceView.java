@@ -10,13 +10,19 @@ import android.view.SurfaceView;
 
 import com.dc.transimissionr.TWidget.TLabel;
 import com.dc.transimissionr.gameData.GDB;
+import com.dc.transimissionr.scene.SceneMain;
+import com.dc.transimissionr.scene.SceneVictory;
 
 /**
  * Created by XIeQian on 2016/12/23.
  */
 
 public class TSurfaceView extends SurfaceView implements SurfaceHolder.Callback,Runnable {
-    public enum SceneStateEnum{sseMain}
+    public static TSurfaceView tsv;
+
+    public boolean pause=false;
+
+    public enum SceneStateEnum{sseMain,sseVictory}
     private SceneStateEnum sse;
     private SurfaceHolder sh;
     private Thread th;
@@ -29,11 +35,13 @@ public class TSurfaceView extends SurfaceView implements SurfaceHolder.Callback,
     private TLabel tlTest;
 
     private SceneMain sceneMain;
+    private SceneVictory sceneVictory;
 
     private GDB gdb;
 
     public TSurfaceView(Context context) {
         super(context);
+        TSurfaceView.tsv=this;
         sh=this.getHolder();
         sh.addCallback(this);
         scaleRate=1;
@@ -51,7 +59,13 @@ public class TSurfaceView extends SurfaceView implements SurfaceHolder.Callback,
         gdb=GDB.getInstance();
         gdb.load(context.getResources());
         sceneMain=new SceneMain();
+        sceneVictory=new SceneVictory();
+
         sse=SceneStateEnum.sseMain;
+    }
+
+    public void setScene(SceneStateEnum sse){
+        this.sse=sse;
     }
 
     private void drawSV(){
@@ -66,11 +80,18 @@ public class TSurfaceView extends SurfaceView implements SurfaceHolder.Callback,
                     canvas.translate(scaleTrans,0);
 
                 //canvas.drawColor(Color.BLACK);
+                switch (sse) {
+                    case sseMain:
+                        sceneMain.draw(canvas);
+                        break;
+                    case sseVictory:
+                        sceneVictory.draw(canvas);
+                        break;
+                }
 
-                sceneMain.draw(canvas);
 
-                tlTest.setText("FPS:"+String.valueOf(FPS)+"  "+String.valueOf(scaleToWidth));
-                tlTest.drawLabel(canvas);
+//                tlTest.setText("FPS:"+String.valueOf(FPS)+"  "+String.valueOf(scaleToWidth));
+//                tlTest.drawLabel(canvas);
 
                 if(scaleToWidth) {
                     canvas.drawRect(0,-scaleTrans,1280,0,paintBlack);
@@ -94,6 +115,9 @@ public class TSurfaceView extends SurfaceView implements SurfaceHolder.Callback,
             case sseMain:
                 sceneMain.logic();
                 break;
+            case sseVictory:
+                sceneVictory.logic();
+                break;
         }
     }
 
@@ -111,6 +135,8 @@ public class TSurfaceView extends SurfaceView implements SurfaceHolder.Callback,
         switch (sse) {
             case sseMain:
                 return sceneMain.onTouchEvent(event);
+            case sseVictory:
+                return sceneVictory.onTouchEvent(event);
         }
         return false;
     }
@@ -146,20 +172,27 @@ public class TSurfaceView extends SurfaceView implements SurfaceHolder.Callback,
     @Override
     public void run() {
         while(flag){
-            try{
-                long tinterval=System.currentTimeMillis();
-                logicSV();
-                drawSV();
-                tinterval=System.currentTimeMillis()-tinterval;
-                if(tinterval<17){
-                    FPS=60;
-                    th.sleep(17-tinterval);
+            if(pause){
+                try {
+                    th.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-                else{
-                    FPS=(int)(1000/tinterval);
+            }else {
+                try {
+                    long tinterval = System.currentTimeMillis();
+                    logicSV();
+                    drawSV();
+                    tinterval = System.currentTimeMillis() - tinterval;
+                    if (tinterval < 17) {
+                        FPS = 60;
+                        th.sleep(17 - tinterval);
+                    } else {
+                        FPS = (int) (1000 / tinterval);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         }
     }

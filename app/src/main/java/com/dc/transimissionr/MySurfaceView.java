@@ -9,12 +9,14 @@ import android.view.MotionEvent;
 import com.dc.transimissionr.Controller.MoveController;
 import com.dc.transimissionr.Controller.PortalController;
 import com.dc.transimissionr.Controller.ViewController;
+import com.dc.transimissionr.TWidget.TButton;
 import com.dc.transimissionr.glCore.MatrixState;
 import com.dc.transimissionr.glCore.TexFactory;
 import com.dc.transimissionr.glCore.VecFactory;
 import com.dc.transimissionr.glObjects.CrossLine;
 import com.dc.transimissionr.glObjects.Portal;
 import com.dc.transimissionr.glObjects.Role;
+import com.dc.transimissionr.glObjects.TextureRect;
 import com.dc.transimissionr.glObjects.WallsManager;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -36,7 +38,9 @@ public class MySurfaceView extends GLSurfaceView
     private PortalController portalController;
     private ViewController viewController;
 
-    boolean pause=false;
+    private TButton btnMask;
+
+    public boolean pause=false;
 
 	public MySurfaceView(Context context) {
         super(context);
@@ -71,8 +75,10 @@ public class MySurfaceView extends GLSurfaceView
                 mRenderer.setRoleCam(viewController.getMoveVector());
             }
             return true;
-        }else
-            return false;
+        }else{
+
+            return true;
+        }
     }
 
 	private class SceneRenderer implements GLSurfaceView.Renderer
@@ -87,16 +93,33 @@ public class MySurfaceView extends GLSurfaceView
         private float[] pgPos;
         private float[] pgVel;
         private int pgIndex=0;
+
+        private TextureRect trVictory;
+        private int tidVictory;
     	
         public void onDrawFrame(GL10 gl) {
-            if(!pause) {
                 GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
-
+            if(!pause) {
                 gameLogic();
                 drawGameScene();
                 drawHUD();
+            }else{
+                drawVictory();
             }
-        }  
+        }
+
+        public void drawVictory(){
+            MatrixState.pushMatrix();
+            MatrixState.pushCamera();
+            MatrixState.setProjectOrtho(-6.4f/ratio_width,6.4f/ratio_width,-3.6f/ratio_height,3.6f/ratio_height,0.1f,100);
+            MatrixState.scale(0.01f/ratio_width,0.01f/ratio_height,1f);
+            MatrixState.setCamera(0,0,1,0,0,0,0,1,0);
+//            MatrixState.translate(rectDst.centerX()-640,360-rectDst.centerY(),0);
+            MatrixState.scale(1280f,720f,1f);
+            trVictory.drawSelf(tidVictory);
+            MatrixState.popCamera();
+            MatrixState.popMatrix();
+        }
 
         public void onSurfaceChanged(GL10 gl, int width, int height) {
         	GLES20.glViewport(0, 0, width, height);
@@ -113,13 +136,14 @@ public class MySurfaceView extends GLSurfaceView
 
             wallsManager=new WallsManager();
             wallsManager.initTexture();
-            wallsManager.addWall(6,6);
+            wallsManager.clearWalls();
+            wallsManager.addWall(1);
             moveController.initTexture();
             portalController.initTexture();
             crossLine=new CrossLine(50f,5f);
             crossLine.initTexture();
             role=new Role();
-            role.setGravity(0.01f);
+            role.setGravity(0.005f);
             portals=new Portal[2];
             portals[0]=new Portal(0);
             portals[1]=new Portal(1);
@@ -127,6 +151,9 @@ public class MySurfaceView extends GLSurfaceView
             portals[1].setOtherSide(portals[0]);
             pgPos=new float[3];
             pgVel=new float[3];
+            wallsManager.initRolePos(role);
+            trVictory=new TextureRect(TexFactory.glSv,1f,1f);
+            tidVictory=TexFactory.getNewTexture(R.drawable.victory,TexFactory.PMOD_REPEAT);
         }
 
         public void drawGameScene(){
@@ -171,13 +198,20 @@ public class MySurfaceView extends GLSurfaceView
                 role.setAlive(true);
             }
 
+            if(wallsManager.calcExit(role)){
+                TSurfaceView.tsv.setScene(TSurfaceView.SceneStateEnum.sseVictory);
+                pause=true;
+            }
+
             MatrixState.setCamera(role.getPos(),role.getCam(),role.getCamh());
 
             if(pgValid) {
                 int i=wallsManager.calcPortal(pgPos, pgVel, portals[pgIndex]);
-                if(i==0)
-                    pgPos=VecFactory.getAdd3(pgPos,pgVel);
-                else{
+                if(i==0) {
+                    pgPos = VecFactory.getAdd3(pgPos, pgVel);
+                    if(VecFactory.getLength3(pgPos)>100f)
+                        pgValid=false;
+                }else{
                     if(i==1){
                         if(pgIndex==0)
                             pgIndex=1;

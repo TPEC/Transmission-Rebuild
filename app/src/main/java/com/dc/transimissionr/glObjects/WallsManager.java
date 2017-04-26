@@ -17,8 +17,11 @@ public class WallsManager{
 
     private int startFloorId;
 
+    private Exit exit;
+
     public WallsManager(){
         walls=new ArrayList<>();
+        exit=new Exit();
     }
 
     public void clearWalls(){
@@ -26,39 +29,116 @@ public class WallsManager{
     }
 
     public void initRolePos(Role role){
-        role.setPos(walls.get(startFloorId).getMd2());
+        role.setPos(VecFactory.getCopy3(walls.get(startFloorId).getMd2()));
     }
 
-    public void addWall(float width,float height){
-        Wall wall=new Wall(6,2);
-        wall.setTexId(textureID[0]);
-        wall.setWallPos(new float[]{0,0,-3},new float[]{0,0,1},new float[]{0,1,0});
-        walls.add(wall);
-        wall=new Wall(6,2);
-        wall.setTexId(textureID[0]);
-        wall.setWallPos(new float[]{3,0,0},new float[]{-1,0,0},new float[]{0,1,0});
-        walls.add(wall);
+    public void addWall(int level){
+        Wall wall=null;
+        switch (level) {
+            case 0:
+                wall = new Wall(6, 6);
+                wall.setTexId(textureID[0]);
+                wall.setWallPos(new float[]{0, 0, -3}, new float[]{0, 0, 1}, new float[]{0, 1, 0});
+                walls.add(wall);
 
-        wall=new Wall(6,2);
-        wall.setTexId(textureID[0]);
-        wall.setWallPos(new float[]{0,0,3},new float[]{0,0,-1},new float[]{0,1,0});
-        walls.add(wall);
+                wall = new Wall(6, 6);
+                wall.setTexId(textureID[0]);
+                wall.setWallPos(new float[]{3, 0, 0}, new float[]{-1, 0, 0}, new float[]{0, 1, 0});
+                walls.add(wall);
 
-        wall=new Wall(6,2);
-        wall.setTexId(textureID[0]);
-        wall.setWallPos(new float[]{-3,0,0},new float[]{1,0,0},new float[]{0,1,0});
-        walls.add(wall);
+                wall = new Wall(6, 6);
+                wall.setTexId(textureID[0]);
+                wall.setWallPos(new float[]{0, 0, 3}, new float[]{0, 0, -1}, new float[]{0, 1, 0});
+                walls.add(wall);
 
-        wall=new Wall(6,6);
-        wall.setTexId(textureID[2]);
-        wall.setWallPos(new float[]{0,-3,0},new float[]{0,1,0},new float[]{0,0,-1});
-        startFloorId=walls.size();
-        walls.add(wall);
+                wall = new Wall(6, 6);
+                wall.setTexId(textureID[0]);
+                wall.setWallPos(new float[]{-3, 0, 0}, new float[]{1, 0, 0}, new float[]{0, 1, 0});
+                walls.add(wall);
 
-        wall=new Wall(6,6);
-        wall.setTexId(textureID[1]);
-        wall.setWallPos(new float[]{0,3,0},new float[]{0,-1,0},new float[]{0,0,1});
-        walls.add(wall);
+                wall = new Wall(6, 6);
+                wall.setTexId(textureID[2]);
+                wall.setWallPos(new float[]{0, -3, 0}, new float[]{0, 1, 0}, new float[]{0, 0, -1});
+                startFloorId = walls.size();
+                walls.add(wall);
+
+                wall = new Wall(6, 6);
+                wall.setTexId(textureID[1]);
+                wall.setWallPos(new float[]{0, 3, 0}, new float[]{0, -1, 0}, new float[]{0, 0, 1});
+                walls.add(wall);
+                break;
+            case 1:
+                wall=new Wall(6,6);
+                wall.setTexId(textureID[0]);//墙
+                wall.setWallPos(new float[]{0,0,-9},new float[]{0,0,1},new float[]{0,1,0});
+                walls.add(wall);
+
+                wall=new Wall(6,6);
+                wall.setTexId(textureID[0]);
+                wall.setWallPos(new float[]{0,0,9},new float[]{0,0,-1},new float[]{0,1,0});
+                walls.add(wall);
+
+                wall=new Wall(18,6);
+                wall.setTexId(textureID[0]);
+                wall.setWallPos(new float[]{3,0,0},new float[]{-1,0,0},new float[]{0,1,0});//右边面朝左的
+                walls.add(wall);
+
+                wall=new Wall(6,6);
+                wall.setTexId(textureID[0]);
+                wall.setWallPos(new float[]{3,-6,0},new float[]{-1,0,0},new float[]{0,1,0});//右边面朝左的
+                walls.add(wall);
+
+                wall=new Wall(18,6);
+                wall.setTexId(textureID[0]);
+                wall.setWallPos(new float[]{-3,0,0},new float[]{1,0,0},new float[]{0,1,0});//左边面朝右
+                walls.add(wall);
+
+                wall=new Wall(6,6);
+                wall.setTexId(textureID[0]);
+                wall.setWallPos(new float[]{-3,-6,0},new float[]{1,0,0},new float[]{0,1,0});//左边面朝右
+                walls.add(wall);
+
+                wall=new Wall(6,6);
+                wall.setTexId(textureID[2]);//[2]应该是地？
+                wall.setWallPos(new float[]{0,-3,6},new float[]{0,1,0},new float[]{0,0,-1});// ground 1
+//                startFloorId=walls.size();
+                walls.add(wall);
+
+                wall=new Wall(6,6);
+                wall.setTexId(textureID[2]);//[2]应该是地？
+                wall.setWallPos(new float[]{0,-3,-6},new float[]{0,1,0},new float[]{0,0,-1});
+                startFloorId=walls.size();
+                walls.add(wall);
+
+                wall=new Wall(6,6);
+                wall.setTexId(textureID[2]);//[2]应该是地？
+                wall.setWallPos(new float[]{0,-9,0},new float[]{0,1,0},new float[]{0,0,-1});//第二层
+//                startFloorId=walls.size();
+                walls.add(wall);
+
+                wall=new Wall(6,18);
+                wall.setTexId(textureID[1]);   //ceiling
+                wall.setWallPos(new float[]{0,3,0},new float[]{0,-1,0},new float[]{0,0,1});
+                walls.add(wall);
+
+                wall=new Wall(6,6);
+                wall.setTexId(textureID[0]);
+                wall.setWallPos(new float[]{0,-6,3},new float[]{0,0,-1},new float[]{0,1,0});
+                walls.add(wall);
+
+                wall=new Wall(6,6);
+                wall.setTexId(textureID[0]);
+                wall.setWallPos(new float[]{0,-6,-3},new float[]{0,0,1},new float[]{0,1,0});
+                walls.add(wall);
+
+                exit.setPos(new float[]{0f,-2.9f,8f});
+
+                break;
+        }
+    }
+
+    public boolean calcExit(Role role){
+        return exit.getToExit(role.getPos());
     }
 
     public boolean calcCollision(Role role){ //返回onFloor
@@ -101,6 +181,7 @@ public class WallsManager{
         for(Wall w:walls){
             w.draw();
         }
+        exit.draw();
     }
 
     public void initTexture(){

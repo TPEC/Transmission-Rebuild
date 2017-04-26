@@ -43,7 +43,8 @@ public class Wall {
         this.nUp=nUp;
         VecFactory.unitize3(this.nVec);
         VecFactory.unitize3(this.nUp);
-        this.md2=VecFactory.getAdd3(md,VecFactory.getMultiply3(nVec,WALL_WIDTH));
+        this.md2=VecFactory.getAdd3(this.md,VecFactory.getMultiply3(this.nVec,WALL_WIDTH));
+        int a=0;
     }
 
     public void setTexId(int texId) {
