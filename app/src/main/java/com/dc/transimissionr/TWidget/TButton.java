@@ -105,7 +105,7 @@ public class TButton {
         Rect rectDst_ = new Rect(rectDst);
         if (enabled) {
             if (clickdown) {
-                rectSrc_.offsetTo(0, rectSrc.height());
+//                rectSrc_.offsetTo(0, rectSrc.height());
                 rectDst_.offset(rectDst.height() / 32, rectDst.height() / 32);
             }
             if (bmpBtnBG != null)

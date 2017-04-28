@@ -10,7 +10,7 @@ import android.util.TypedValue;
  */
 
 public class GDB {
-    private Resources res;
+    public Resources res;
 
     public void load(Resources res){
         this.res=res;

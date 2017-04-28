@@ -19,6 +19,9 @@ public class Constant
     public static float ACC_SCALE=0.01f;
     public static float MAX_VERTICAL_VEL=0.2f;
     public static float CAM_SCALE=0.003f;
+    public static int CAM_SCALE_RATE=1;
+
+    public static int Volume=1;
 
     public static float ratio_width=1f;
     public static float ratio_height=1f;

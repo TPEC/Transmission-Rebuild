@@ -10,7 +10,10 @@ import android.view.SurfaceView;
 
 import com.dc.transimissionr.TWidget.TLabel;
 import com.dc.transimissionr.gameData.GDB;
+import com.dc.transimissionr.scene.SceneLevel;
 import com.dc.transimissionr.scene.SceneMain;
+import com.dc.transimissionr.scene.SceneMenu;
+import com.dc.transimissionr.scene.SceneSettings;
 import com.dc.transimissionr.scene.SceneVictory;
 
 /**
@@ -22,7 +25,7 @@ public class TSurfaceView extends SurfaceView implements SurfaceHolder.Callback,
 
     public boolean pause=false;
 
-    public enum SceneStateEnum{sseMain,sseVictory}
+    public enum SceneStateEnum{sseMain,sseVictory,sseMenu,sseSettings,sseLevel}
     private SceneStateEnum sse;
     private SurfaceHolder sh;
     private Thread th;
@@ -36,6 +39,9 @@ public class TSurfaceView extends SurfaceView implements SurfaceHolder.Callback,
 
     private SceneMain sceneMain;
     private SceneVictory sceneVictory;
+    private SceneMenu sceneMenu;
+    private SceneLevel sceneLevel;
+    private SceneSettings sceneSettings;
 
     private GDB gdb;
 
@@ -60,6 +66,9 @@ public class TSurfaceView extends SurfaceView implements SurfaceHolder.Callback,
         gdb.load(context.getResources());
         sceneMain=new SceneMain();
         sceneVictory=new SceneVictory();
+        sceneMenu=new SceneMenu();
+        sceneLevel=new SceneLevel();
+        sceneSettings=new SceneSettings();
 
         sse=SceneStateEnum.sseMain;
     }
@@ -86,6 +95,15 @@ public class TSurfaceView extends SurfaceView implements SurfaceHolder.Callback,
                         break;
                     case sseVictory:
                         sceneVictory.draw(canvas);
+                        break;
+                    case sseMenu:
+                        sceneMenu.draw(canvas);
+                        break;
+                    case sseSettings:
+                        sceneSettings.draw(canvas);
+                        break;
+                    case sseLevel:
+                        sceneLevel.draw(canvas);
                         break;
                 }
 
@@ -118,6 +136,15 @@ public class TSurfaceView extends SurfaceView implements SurfaceHolder.Callback,
             case sseVictory:
                 sceneVictory.logic();
                 break;
+            case sseMenu:
+                sceneMenu.logic();
+                break;
+            case sseSettings:
+                sceneSettings.logic();
+                break;
+            case sseLevel:
+                sceneLevel.logic();
+                break;
         }
     }
 
@@ -137,6 +164,12 @@ public class TSurfaceView extends SurfaceView implements SurfaceHolder.Callback,
                 return sceneMain.onTouchEvent(event);
             case sseVictory:
                 return sceneVictory.onTouchEvent(event);
+            case sseMenu:
+                return sceneMenu.onTouchEvent(event);
+            case sseSettings:
+                return sceneSettings.onTouchEvent(event);
+            case sseLevel:
+                return sceneLevel.onTouchEvent(event);
         }
         return false;
     }
