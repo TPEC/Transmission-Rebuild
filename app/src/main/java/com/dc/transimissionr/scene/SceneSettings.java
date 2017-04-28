@@ -4,8 +4,10 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.media.AudioManager;
 import android.view.MotionEvent;
 
+import com.dc.transimissionr.MainActivity;
 import com.dc.transimissionr.R;
 import com.dc.transimissionr.TSurfaceView;
 import com.dc.transimissionr.TWidget.TButton;
@@ -74,7 +76,8 @@ public class SceneSettings {
         }else if(btnSound.onTouchEvent(event)){
             Constant.Volume++;
             if(Constant.Volume>3)
-                Constant.Volume=1;
+                Constant.Volume=0;
+            MainActivity.ma.am.setStreamVolume(AudioManager.STREAM_MUSIC,MainActivity.ma.vol[Constant.Volume],AudioManager.FLAG_PLAY_SOUND);
             lbVol.setText(String.valueOf(Constant.Volume));
         } else if(btnBack.onTouchEvent(event)) {
             TSurfaceView.tsv.setScene(TSurfaceView.SceneStateEnum.sseMenu);
